@@ -61,18 +61,24 @@ void ofApp::setup(){
 void ofApp::update(){
     
     movie.update();
-    img.setFromPixels(movie.getPixels().getData(), movie.getWidth(), movie.getHeight(), OF_IMAGE_COLOR);
+    
+    if(movie.isFrameNew() && movie.getPixels().getData() != NULL){
+      img.setFromPixels(movie.getPixels().getData(), movie.getWidth(), movie.getHeight(), OF_IMAGE_COLOR);
+    }
+    //
+    
+    plane.mapTexCoordsFromTexture(movie.getTexture());
    
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    img.bind();
+    img.getTexture().bind();
     //
     plane.draw();
-    img.unbind();
-    
+    img.getTexture().unbind();
+    //img.draw(0,0);
     //movie.draw(0, 0, ofGetWidth(), ofGetHeight());
     
 }
