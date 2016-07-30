@@ -1,170 +1,79 @@
 #include "ofApp.h"
 
+float w,h;
+ofVboMesh mesh;
+ofEasyCam cam;
+ofImage img;
+ofTexture tex;
 ofPlanePrimitive plane;
 
-ofBoxPrimitive box;
-ofSpherePrimitive sp;
-ofMaterial material;
-int w,h;
-
-int touchX,touchY;
-float rotation;
+ofMesh tri;
+ofVideoGrabber movie;
 //--------------------------------------------------------------
 void ofApp::setup(){
-	ofBackground(40);
-	ofSetVerticalSync(false);
-	ofEnableAlphaBlending();
-    ofSetLogLevel(OF_LOG_VERBOSE);
     
-    //shader.load("shaders/noise.vert", "shaders/noise.frag");
-    bUseShader = false;
     
-	//we load a font and tell OF to make outlines so we can draw it as GL shapes rather than textures
-    int fontSize = ofGetWidth() / 10;
-	font.load("type/verdana.ttf", fontSize, true, false, true, 0.4, 72);
-    sp.set(200, 10);
-    sp.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
-    plane.set(ofGetWidth()*1.5, ofGetHeight()*1.5, 50, 50);
-    plane.setPosition(0, 0, 0);
+    plane.set(ofGetWidth(), ofGetHeight(), 100, 100);
+    cout << plane.getMesh().getVertex(0) << endl;
+    mesh = plane.getMesh();
     
-    material.setColors(ofColor(255), ofColor(255), ofColor(255), ofColor(255));
+    for(int i = 0; i < plane.getMesh().getNumVertices(); i++)
+    {
+        ofVec3f center;center.set(ofGetWidth()/2,ofGetHeight()/2,0);
+        float radius = 100;
+        ofVec3f v = plane.getMesh().getVertex(i);
+        v +=ofVec3f(ofGetWidth()/2,ofGetHeight()/2);
+        
+        if(v.distance(center) < 100 ){
+            float dist = v.distance(center);
+            float height = ofMap(dist, 0, 100, 100, 0);
+            float sin = ofMap(dist, 0, 100, PI, 0);
+            plane.getMesh().setVertex(i, v+ofVec3f(0,0,100*sin));
+        }else {
+            
+            plane.getMesh().setVertex(i, v);
+        }
+        
+        
+        
+        plane.getMesh().setTexCoord(i, plane.getMesh().getVertex(i));
+        
+    }
     
-    box.set(50, 50, 50, 100, 100, 100);
-    box.setPosition(100, 100, 0);
-    box.setResolution(10);
-    w = ofGetWidth();
-    h = ofGetHeight();
-    movie.setup(w, h);
     
-    w = movie.getWidth();
-    h = movie.getHeight();
+    ofVec3f point0 = ofVec3f(0,0,0);
     
-//#ifdef TARGET_OPENGLES
-    shader.load("shadersES2/shader");
-    shader00.load("00/shader");
-//#else
-//    if(ofIsGLProgrammableRenderer()){
-//    shader.load("shadersGL3/shader");
-//    }else{
-        //shader.load("shadersGL2/shader");
-//    }
-//#endif
+    ofVec3f point1 = ofVec3f(0,100,0);
+    ofVec3f point2 = ofVec3f(100,0,0);
+    tri.addVertex( point0 ); tri.addVertex( point1 ); tri.addVertex( point2 );
+    tri.addTexCoord(point0);
+    tri.addTexCoord(point1);
+    tri.addTexCoord(point2);
     
-    img.allocate(80, 60, OF_IMAGE_GRAYSCALE);
+    movie.setup(ofGetWidth(), ofGetHeight());
+    //tex.allocate(movie.getWidth(),movie.getHeight(),GL_RGB);
+    img.allocate(movie.getWidth(), movie.getHeight(), OF_IMAGE_COLOR);
     
-    plane.set(800, 600, 80, 60);
-    plane.mapTexCoordsFromTexture(img.getTextureReference());
     
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
     movie.update();
-    
-    plane.rotate(0.1, ofVec3f(0,1,0));
-    
-    
-    
-    
-    float noiseScale = ofMap(mouseX, 0, ofGetWidth(), 0, 0.1);
-    float noiseVel = ofGetElapsedTimef();
-    
-    unsigned char * pixels = img.getPixels();
-    int w = img.getWidth();
-    int h = img.getHeight();
-    for(int y=0; y<h; y++) {
-        for(int x=0; x<w; x++) {
-            int i = y * w + x;
-            float noiseVelue = ofNoise(x * noiseScale, y * noiseScale, noiseVel);
-            pixels[i] = 255 * noiseVelue;
-        }
-    }
-    img.update();
+    img.setFromPixels(movie.getPixels().getData(), movie.getWidth(), movie.getHeight(), OF_IMAGE_COLOR);
+   
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-//    ofPushStyle();
-//	//ofSetColor(245, 58, 135);
-//	//ofFill();
-//    
-//    if(bUseShader) {
-//        shader.begin();
-//        shader.setUniform1f("timeValX", ofGetElapsedTimef() * 0.1 );     // we want to pass in some varrying values to animate our type / color
-//        shader.setUniform1f("timeValY", -ofGetElapsedTimef() * 0.18 );
-//        shader.setUniform2f("mouse", mousePoint.x, mousePoint.y);
-//        // we also pass in the mouse position
-//        //shader.setUniformTexture(<#const string &name#>, <#int textureTarget#>, <#GLint textureID#>, <#int textureLocation#>)
-//    }
-//    
-//    
-//    //material.begin();
-//    //plane.drawWireframe();
-//    //material.end();
-//    
-////    cam.getTexture().bind();
-////    plane.draw(OF_MESH_WIREFRAME);
-////    cam.getTexture().unbind();
-//    //ofDrawPlane(0, 0, ofGetWidth()*2, ofGetHeight()*2);
-//    //cam.draw(0,0, ofGetWidth(),ofGetHeight());
-//    
-//    //ofDrawPlane(0, 0,ofGetWidth(), ofGetHeight());
-//    
-//    ofRectangle rect = font.getStringBoundingBox("openFrameworks", 0, 0);   // size of text.
-//    int x = (ofGetWidth() - rect.width) * 0.5;                              // position in center screen.
-//    int padding = rect.height + 50;                                         // draw the text multiple times.
-//    for(int y=rect.height; y<ofGetHeight(); y+=padding) {
-//        font.drawStringAsShapes("openFrameworks", x, y);
-//    }
-//    //cam.draw(0, 0, ofGetWidth(), ofGetHeight());
-//   // ofRect(0, 0, ofGetWidth()*2, ofGetHeight()*2);
-//    
-//
-//    if(bUseShader) {
-//        shader.end();
-//    }
-//    
-//    ofPopStyle();
+
+    img.bind();
+    //
+    plane.draw();
+    img.unbind();
     
-    
-    //plane.drawWireframe();
-    
-//    sp.drawWireframe();
-//    box.drawWireframe();
-    ofRotateX(80);
-    img.getTextureReference().bind();
-    
-    shader.begin();
-    
-    //ofPushMatrix();
-    
-    // translate plane into center screen.
-//    float tx = ofGetWidth() / 2;
-//    float ty = ofGetHeight() / 2;
-//    ofTranslate(tx, ty);
-//    
-//    // the mouse/touch Y position changes the rotation of the plane.
-//    float percentY = mouseY / (float)ofGetHeight();
-//    float rotation = ofMap(percentY, 0, 1, -60, 60, true) + 60;
-//    ofRotate(rotation, 1, 0, 0);
-    
-    plane.drawWireframe();
-    
-    //ofPopMatrix();
-    
-    shader.end();
-    
-    ofSetColor(ofColor::white);
-    img.draw(0, 0);
-    
-    
-    ofSetColor(255);
-    
-    shader.begin();
-    
-    ofRect(0, 0, ofGetWidth(), ofGetHeight());
-    
-    shader.end();
+    //movie.draw(0, 0, ofGetWidth(), ofGetHeight());
     
 }
 
@@ -176,25 +85,17 @@ void ofApp::exit(){
 
 //--------------------------------------------------------------
 void ofApp::touchDown(ofTouchEventArgs & touch){
-    bUseShader = true;
+   
 }
 
 //--------------------------------------------------------------
 void ofApp::touchMoved(ofTouchEventArgs & touch){
-    // we have to transform the coords to what the shader is expecting which is 0,0 in the center and y axis flipped.
-    mousePoint.x = touch.x * 2 - ofGetWidth();
-    mousePoint.y = ofGetHeight() * 0.5 - touch.y;
     
-    touchX = touch.x;
-    touchY = touch.y;
-    
-    float percentY = touch.y / (float)ofGetHeight()*2;
-    rotation = ofMap(percentY, 0, 1, -60, 60, true) + 60;
 }
 
 //--------------------------------------------------------------
 void ofApp::touchUp(ofTouchEventArgs & touch){
-    bUseShader = false;
+    
 }
 
 //--------------------------------------------------------------
