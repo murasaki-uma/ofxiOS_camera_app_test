@@ -324,7 +324,7 @@
 				INFOPLIST_FILE = "ofxiOS-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "shader-test-example-";
-				PRODUCT_NAME = "${TARGET_NAME}";
+				PRODUCT_NAME = iosES2ShaderExample;
 				PROVISIONING_PROFILE = "";
 				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
@@ -341,7 +341,7 @@
 				INFOPLIST_FILE = "ofxiOS-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "shader-test-example-";
-				PRODUCT_NAME = "${TARGET_NAME}";
+				PRODUCT_NAME = iosES2ShaderExample;
 				PROVISIONING_PROFILE = "";
 				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
